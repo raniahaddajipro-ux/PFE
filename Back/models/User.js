@@ -9,6 +9,8 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true },       
   role: { type: String, enum: ["Admin", "Staff"], required: true },
   avatarColor: { type: String, default: "#8B5CF6" },
+  resetPasswordToken: String,
+  resetPasswordExpires: Date,
   avatarImage: { type: String, default: null } 
 }, { timestamps: true });
 

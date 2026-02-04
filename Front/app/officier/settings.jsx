@@ -1,4 +1,4 @@
-// src/pages/staff/Settings.jsx - Version React Native Mobile
+// src/pages/admin/AdminSettings.jsx - Version React Native Mobile avec AsyncStorage
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -11,10 +11,12 @@ import {
   ActivityIndicator,
   StyleSheet,
   Alert,
+  SafeAreaView,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import * as ImagePicker from "expo-image-picker";
-import { updateProfile, updatePassword } from "../../Service/userservice";
+import { updateProfile, updatePassword, saveUser, getUser } from "../../Service/userservice";
 
 const SettingsPage = ({ currentUser, onLogout, onProfileUpdate }) => {
   const [showEditModal, setShowEditModal] = useState(false);
@@ -38,10 +40,10 @@ const SettingsPage = ({ currentUser, onLogout, onProfileUpdate }) => {
   const fullName =
     currentUser?.firstName && currentUser?.lastName
       ? `${currentUser.firstName} ${currentUser.lastName}`
-      : "Staff";
+      : "Admin";
 
   const [userAvatar] = useState(
-    currentUser?.firstName ? currentUser.firstName.charAt(0).toUpperCase() : "S"
+    currentUser?.firstName ? currentUser.firstName.charAt(0).toUpperCase() : "A"
   );
 
   // Avatar storage
@@ -49,10 +51,13 @@ const SettingsPage = ({ currentUser, onLogout, onProfileUpdate }) => {
 
   // ✅ Sync local state when currentUser prop changes
   useEffect(() => {
-    console.log("🔵 Settings: currentUser changed, syncing local state");
     if (currentUser) {
-      setEmail(currentUser.mail || "");
-      setPhone(currentUser.phone || "");
+      // ✅ Synchroniser email et phone avec currentUser
+      const userEmail = currentUser.mail || currentUser.email || "";
+      const userPhone = currentUser.phone || "";
+
+      setEmail(userEmail);
+      setPhone(userPhone);
       setAvatarColor(currentUser.avatarColor || "#8B5CF6");
 
       // ✅ Add cache-busting timestamp to force image reload
@@ -60,8 +65,6 @@ const SettingsPage = ({ currentUser, onLogout, onProfileUpdate }) => {
         ? `${currentUser.avatarImage}?t=${Date.now()}`
         : null;
       setAvatarImage(imageUrl);
-
-      console.log("🔵 Synced avatar image:", imageUrl);
     }
   }, [currentUser]);
 
@@ -195,6 +198,10 @@ const SettingsPage = ({ currentUser, onLogout, onProfileUpdate }) => {
 
       console.log("🟢 Updated user data with token:", updatedUserData);
 
+      // ✅ Save updated user to AsyncStorage
+      await saveUser(updatedUserData);
+      console.log("✅ User saved to AsyncStorage");
+
       // ✅ Update parent component
       if (onProfileUpdate) {
         console.log("🟢 Calling onProfileUpdate...");
@@ -221,6 +228,8 @@ const SettingsPage = ({ currentUser, onLogout, onProfileUpdate }) => {
 
   // Reset password with API call
   const handleResetPassword = async () => {
+    console.log("🟢 handleResetPassword called");
+    
     setError("");
     setSuccess("");
 
@@ -247,7 +256,10 @@ const SettingsPage = ({ currentUser, onLogout, onProfileUpdate }) => {
     setLoading(true);
 
     try {
+      console.log("🟢 Calling updatePassword API...");
       const response = await updatePassword(currentPassword, password);
+
+      console.log("✅ Password update response:", response);
 
       showSuccess(response.message || "Password updated successfully");
       setCurrentPassword("");
@@ -256,6 +268,7 @@ const SettingsPage = ({ currentUser, onLogout, onProfileUpdate }) => {
       setPasswordStrength("");
       setShowResetPassword(false);
     } catch (err) {
+      console.error("❌ Password update error:", err);
       if (err.response) {
         setError(err.response.data.message || "Failed to update password");
       } else {
@@ -278,7 +291,7 @@ const SettingsPage = ({ currentUser, onLogout, onProfileUpdate }) => {
     // Otherwise, ensure proper URL format with cache-busting
     const baseUrl = avatarImage.startsWith("http")
       ? avatarImage
-      : `http://localhost:3000${avatarImage}`;
+      : `http://172.28.40.165:3000${avatarImage}`;
 
     return `${baseUrl.split("?")[0]}?t=${Date.now()}`;
   };
@@ -294,186 +307,229 @@ const SettingsPage = ({ currentUser, onLogout, onProfileUpdate }) => {
   ];
 
   return (
-    <ScrollView style={styles.container}>
-      {/* Header with Avatar */}
-      <View style={styles.header}>
-        <View style={styles.avatarContainer}>
-          {avatarImage ? (
-            <Image
-              source={{ uri: getAvatarDisplayUrl() }}
-              style={styles.avatarLarge}
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#F8F7FC' }}>
+      <ScrollView
+        contentContainerStyle={{
+          flexGrow: 1,
+          justifyContent: 'flex-start',
+          paddingTop: 20,
+          paddingBottom: 60,
+          paddingHorizontal: 24,
+        }}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Page Header */}
+        <View style={styles.pageHeader}>
+          <Text style={styles.pageTitle}>Settings</Text>
+          <Text style={styles.pageSubtitle}>Manage your profile and preferences</Text>
+        </View>
+
+        {/* Error Display */}
+        {error ? (
+          <View style={styles.errorMessage}>
+            <Feather name="alert-circle" size={20} color="#F59E0B" />
+            <Text style={styles.errorText}>{error}</Text>
+          </View>
+        ) : null}
+
+        {/* Success Display */}
+        {success ? (
+          <View style={styles.successMessage}>
+            <Feather name="check-circle" size={20} color="#10B981" />
+            <Text style={styles.successText}>{success}</Text>
+          </View>
+        ) : null}
+
+        {/* Profile Card */}
+        <View style={styles.card}>
+          <LinearGradient
+            colors={['#8B5CF6', '#EC4899']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 0, y: 1 }}
+            style={styles.cardBorder}
+          />
+          <View style={styles.profileHeader}>
+            <View style={styles.avatarContainer}>
+              {avatarImage ? (
+                <Image
+                  source={{ uri: getAvatarDisplayUrl() }}
+                  style={styles.avatarLarge}
+                />
+              ) : (
+                <View
+                  style={[
+                    styles.avatarLarge,
+                    { backgroundColor: avatarColor },
+                  ]}
+                >
+                  <Text style={styles.avatarText}>{userAvatar}</Text>
+                </View>
+              )}
+              <TouchableOpacity
+                style={styles.editIcon}
+                onPress={() => setShowEditModal(true)}
+              >
+                <Feather name="edit-2" size={16} color="#8B5CF6" />
+              </TouchableOpacity>
+            </View>
+            <View style={styles.profileInfo}>
+              <Text style={styles.profileName}>{fullName}</Text>
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>{currentUser?.role || "ADMIN"}</Text>
+              </View>
+            </View>
+          </View>
+        </View>
+
+        {/* Personal Information Card */}
+        <View style={styles.card}>
+          <LinearGradient
+            colors={['#8B5CF6', '#EC4899']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 0, y: 1 }}
+            style={styles.cardBorder}
+          />
+          <View style={styles.cardHeader}>
+            <Text style={styles.cardTitle}>Personal Information</Text>
+            <View style={[styles.iconContainer, styles.iconPrimary]}>
+              <Text style={styles.iconText}>👤</Text>
+            </View>
+          </View>
+
+          <View style={styles.field}>
+            <Text style={styles.label}>Full Name</Text>
+            <TextInput
+              style={styles.inputReadOnly}
+              value={fullName}
+              editable={false}
             />
-          ) : (
-            <View
-              style={[
-                styles.avatarLarge,
-                { backgroundColor: avatarColor },
-              ]}
+          </View>
+
+          <View style={styles.field}>
+            <Text style={styles.label}>Email</Text>
+            <TextInput
+              style={styles.inputReadOnly}
+              value={email}
+              editable={false}
+            />
+          </View>
+
+          <View style={styles.field}>
+            <Text style={styles.label}>Phone Number</Text>
+            <TextInput
+              style={styles.inputReadOnly}
+              value={phone}
+              editable={false}
+            />
+          </View>
+        </View>
+
+        {/* Security Card */}
+        <View style={styles.card}>
+          <LinearGradient
+            colors={['#8B5CF6', '#EC4899']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 0, y: 1 }}
+            style={styles.cardBorder}
+          />
+          <View style={styles.cardHeader}>
+            <Text style={styles.cardTitle}>Security</Text>
+            <View style={[styles.iconContainer, styles.iconWarning]}>
+              <Text style={styles.iconText}>🔒</Text>
+            </View>
+          </View>
+
+          {!showResetPassword ? (
+            <TouchableOpacity
+              style={styles.resetPasswordBtn}
+              onPress={() => setShowResetPassword(true)}
             >
-              <Text style={styles.avatarText}>{userAvatar}</Text>
+              <Feather name="lock" size={18} color="#fff" />
+              <Text style={styles.resetPasswordText}>Reset Password</Text>
+            </TouchableOpacity>
+          ) : (
+            <View>
+              <View style={styles.field}>
+                <Text style={styles.label}>Current Password</Text>
+                <TextInput
+                  style={styles.input}
+                  value={currentPassword}
+                  onChangeText={setCurrentPassword}
+                  placeholder="Enter current password"
+                  placeholderTextColor="#9CA3AF"
+                  secureTextEntry
+                />
+              </View>
+
+              <View style={styles.field}>
+                <Text style={styles.label}>New Password</Text>
+                <TextInput
+                  style={styles.input}
+                  value={password}
+                  onChangeText={handlePasswordChange}
+                  placeholder="Min. 8 characters"
+                  placeholderTextColor="#9CA3AF"
+                  secureTextEntry
+                />
+                {password ? (
+                  <View
+                    style={[
+                      styles.passwordStrength,
+                      styles[`strength_${passwordStrength}`],
+                    ]}
+                  >
+                    <Text style={styles.strengthText}>
+                      Strength: <Text style={styles.strengthValue}>{passwordStrength}</Text>
+                    </Text>
+                  </View>
+                ) : null}
+              </View>
+
+              <View style={styles.field}>
+                <Text style={styles.label}>Confirm Password</Text>
+                <TextInput
+                  style={styles.input}
+                  value={confirmPassword}
+                  onChangeText={setConfirmPassword}
+                  placeholder="Confirm new password"
+                  placeholderTextColor="#9CA3AF"
+                  secureTextEntry
+                />
+              </View>
+
+              <View style={styles.passwordButtons}>
+                <TouchableOpacity
+                  style={[styles.button, styles.cancelBtn]}
+                  onPress={() => {
+                    setShowResetPassword(false);
+                    setCurrentPassword("");
+                    setPassword("");
+                    setConfirmPassword("");
+                    setPasswordStrength("");
+                    setError("");
+                  }}
+                  disabled={loading}
+                >
+                  <Text style={styles.cancelBtnText}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.button, styles.updateBtn]}
+                  onPress={handleResetPassword}
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <ActivityIndicator color="#fff" />
+                  ) : (
+                    <Text style={styles.buttonText}>Update Password</Text>
+                  )}
+                </TouchableOpacity>
+              </View>
             </View>
           )}
-          <TouchableOpacity
-            style={styles.editIcon}
-            onPress={() => setShowEditModal(true)}
-          >
-            <Feather name="edit-2" size={20} color="#333" />
-          </TouchableOpacity>
-        </View>
-        <View style={styles.headerInfo}>
-          <Text style={styles.title}>{fullName}</Text>
-          <View style={styles.badge}>
-            <Text style={styles.badgeText}>{currentUser?.role || "STAFF"}</Text>
-          </View>
-        </View>
-      </View>
-
-      {/* Error Display */}
-      {error ? (
-        <View style={styles.errorMessage}>
-          <Feather name="alert-circle" size={20} color="orange" />
-          <Text style={styles.errorText}>{error}</Text>
-        </View>
-      ) : null}
-
-      {/* Success Display */}
-      {success ? (
-        <View style={styles.successMessage}>
-          <Text style={styles.successText}>✅ {success}</Text>
-        </View>
-      ) : null}
-
-      {/* Personal Info - Display Only */}
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>Personal Information</Text>
-
-        {/* Full Name (Read-only) */}
-        <View style={styles.field}>
-          <Text style={styles.label}>Full Name</Text>
-          <TextInput
-            style={styles.inputReadOnly}
-            value={fullName}
-            editable={false}
-          />
         </View>
 
-        {/* Email (Display Only) */}
-        <View style={styles.field}>
-          <Text style={styles.label}>Email</Text>
-          <TextInput
-            style={styles.inputReadOnly}
-            value={email}
-            editable={false}
-          />
-        </View>
-
-        {/* Phone (Display Only) */}
-        <View style={styles.field}>
-          <Text style={styles.label}>Phone Number</Text>
-          <TextInput
-            style={styles.inputReadOnly}
-            value={phone}
-            editable={false}
-          />
-        </View>
-      </View>
-
-      {/* Reset Password Button */}
-      {!showResetPassword && (
-        <View style={styles.card}>
-          <TouchableOpacity
-            style={styles.resetPasswordBtn}
-            onPress={() => setShowResetPassword(true)}
-          >
-            <Text style={styles.resetPasswordText}>Reset Password</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-
-      {/* Password Reset Form */}
-      {showResetPassword && (
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Reset Password</Text>
-
-          <View style={styles.field}>
-            <Text style={styles.label}>Current Password</Text>
-            <TextInput
-              style={styles.input}
-              value={currentPassword}
-              onChangeText={setCurrentPassword}
-              placeholder="Enter current password"
-              secureTextEntry
-            />
-          </View>
-
-          <View style={styles.field}>
-            <Text style={styles.label}>New Password</Text>
-            <TextInput
-              style={styles.input}
-              value={password}
-              onChangeText={handlePasswordChange}
-              placeholder="Min. 8 characters"
-              secureTextEntry
-            />
-            {password ? (
-              <View
-                style={[
-                  styles.passwordStrength,
-                  styles[`strength_${passwordStrength}`],
-                ]}
-              >
-                <Text style={styles.strengthText}>
-                  Strength: <Text style={styles.strengthValue}>{passwordStrength}</Text>
-                </Text>
-              </View>
-            ) : null}
-          </View>
-
-          <View style={styles.field}>
-            <Text style={styles.label}>Confirm Password</Text>
-            <TextInput
-              style={styles.input}
-              value={confirmPassword}
-              onChangeText={setConfirmPassword}
-              placeholder="Confirm new password"
-              secureTextEntry
-            />
-          </View>
-
-          <View style={styles.passwordButtons}>
-            <TouchableOpacity
-              style={[styles.button, styles.updateBtn]}
-              onPress={handleResetPassword}
-              disabled={loading}
-            >
-              <Text style={styles.buttonText}>
-                {loading ? "Updating..." : "Update Password"}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.button, styles.cancelBtn]}
-              onPress={() => {
-                setShowResetPassword(false);
-                setCurrentPassword("");
-                setPassword("");
-                setConfirmPassword("");
-                setPasswordStrength("");
-                setError("");
-              }}
-              disabled={loading}
-            >
-              <Text style={styles.cancelBtnText}>Cancel</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      )}
-
-      {/* Logout */}
-      <View style={styles.logoutContainer}>
-        <TouchableOpacity style={styles.logoutBtn} onPress={onLogout}>
-          <Text style={styles.logoutText}>Logout</Text>
-        </TouchableOpacity>
-      </View>
+      
+      </ScrollView>
 
       {/* Edit Profile Modal */}
       <Modal
@@ -490,7 +546,7 @@ const SettingsPage = ({ currentUser, onLogout, onProfileUpdate }) => {
               <TouchableOpacity
                 onPress={() => !loading && setShowEditModal(false)}
               >
-                <Feather name="x" size={24} color="#EF4444" />
+                <Feather name="x" size={24} color="#6B7280" />
               </TouchableOpacity>
             </View>
 
@@ -578,6 +634,7 @@ const SettingsPage = ({ currentUser, onLogout, onProfileUpdate }) => {
                     value={email}
                     onChangeText={setEmail}
                     placeholder="example@domain.com"
+                    placeholderTextColor="#9CA3AF"
                     keyboardType="email-address"
                     autoCapitalize="none"
                     editable={!loading}
@@ -591,6 +648,7 @@ const SettingsPage = ({ currentUser, onLogout, onProfileUpdate }) => {
                     value={phone}
                     onChangeText={setPhone}
                     placeholder="+216 XX XXX XXX"
+                    placeholderTextColor="#9CA3AF"
                     keyboardType="phone-pad"
                     editable={!loading}
                   />
@@ -622,162 +680,208 @@ const SettingsPage = ({ currentUser, onLogout, onProfileUpdate }) => {
           </View>
         </View>
       </Modal>
-    </ScrollView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#F3F4F6",
+  pageHeader: {
+    marginBottom: 32,
   },
-  header: {
-    backgroundColor: "#fff",
-    padding: 20,
-    alignItems: "center",
-    borderBottomWidth: 1,
-    borderBottomColor: "#E5E7EB",
+  pageTitle: {
+    fontSize: 32,
+    fontWeight: '700',
+    color: '#111827',
+    marginBottom: 8,
+  },
+  pageSubtitle: {
+    fontSize: 16,
+    color: '#6B7280',
+  },
+  errorMessage: {
+    backgroundColor: '#FEF3C7',
+    padding: 16,
+    borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 24,
+    gap: 12,
+  },
+  errorText: {
+    color: '#92400E',
+    fontSize: 14,
+    flex: 1,
+    fontWeight: '500',
+  },
+  successMessage: {
+    backgroundColor: '#D1FAE5',
+    padding: 16,
+    borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 24,
+    gap: 12,
+  },
+  successText: {
+    color: '#065F46',
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  card: {
+    backgroundColor: '#FFFFFF',
+    padding: 24,
+    borderRadius: 16,
+    shadowColor: '#f65cf1',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 20,
+    elevation: 4,
+    marginBottom: 24,
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  cardBorder: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: 4,
+    height: '100%',
+  },
+  profileHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 20,
   },
   avatarContainer: {
-    position: "relative",
-    marginBottom: 16,
+    position: 'relative',
   },
   avatarLarge: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    justifyContent: "center",
-    alignItems: "center",
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   avatarText: {
-    fontSize: 40,
-    color: "#fff",
-    fontWeight: "bold",
+    fontSize: 32,
+    color: '#fff',
+    fontWeight: '700',
   },
   editIcon: {
-    position: "absolute",
-    right: 0,
-    bottom: 0,
-    backgroundColor: "#fff",
-    borderRadius: 20,
+    position: 'absolute',
+    right: -4,
+    bottom: -4,
+    backgroundColor: '#fff',
+    borderRadius: 16,
     padding: 8,
     elevation: 3,
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
+    borderWidth: 2,
+    borderColor: '#F8F7FC',
   },
-  headerInfo: {
-    alignItems: "center",
+  profileInfo: {
+    flex: 1,
   },
-  title: {
+  profileName: {
     fontSize: 24,
-    fontWeight: "bold",
-    color: "#111827",
+    fontWeight: '700',
+    color: '#111827',
     marginBottom: 8,
   },
   badge: {
-    backgroundColor: "#10B981",
+    backgroundColor: 'rgba(139, 92, 246, 0.1)',
     paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    alignSelf: 'flex-start',
   },
   badgeText: {
-    color: "#fff",
+    color: '#8B5CF6',
     fontSize: 12,
-    fontWeight: "600",
+    fontWeight: '600',
   },
-  errorMessage: {
-    backgroundColor: "#FEF3C7",
-    margin: 16,
-    padding: 12,
-    borderRadius: 8,
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  errorText: {
-    color: "#92400E",
-    marginLeft: 8,
-    flex: 1,
-  },
-  successMessage: {
-    backgroundColor: "#D1FAE5",
-    margin: 16,
-    padding: 12,
-    borderRadius: 8,
-  },
-  successText: {
-    color: "#065F46",
-    textAlign: "center",
-  },
-  card: {
-    backgroundColor: "#fff",
-    margin: 16,
-    padding: 16,
-    borderRadius: 12,
-    elevation: 2,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
   },
   cardTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#111827",
-    marginBottom: 16,
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#111827',
+  },
+  iconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  iconPrimary: {
+    backgroundColor: 'rgba(139, 92, 246, 0.1)',
+  },
+  iconWarning: {
+    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+  },
+  iconText: {
+    fontSize: 20,
   },
   field: {
     marginBottom: 16,
   },
   label: {
     fontSize: 14,
-    fontWeight: "600",
-    color: "#374151",
+    fontWeight: '500',
+    color: '#6B7280',
     marginBottom: 8,
   },
   input: {
-    backgroundColor: "#F9FAFB",
+    backgroundColor: '#F9FAFB',
     borderWidth: 1,
-    borderColor: "#D1D5DB",
+    borderColor: '#E5E7EB',
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
-    color: "#111827",
+    color: '#111827',
   },
   inputReadOnly: {
-    backgroundColor: "#F3F4F6",
+    backgroundColor: 'rgba(139, 92, 246, 0.05)',
     borderWidth: 1,
-    borderColor: "#E5E7EB",
+    borderColor: '#E5E7EB',
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
-    color: "#6B7280",
+    color: '#6B7280',
   },
   passwordStrength: {
     marginTop: 8,
     padding: 8,
-    borderRadius: 4,
+    borderRadius: 6,
   },
   strength_weak: {
-    backgroundColor: "#FEE2E2",
+    backgroundColor: '#FEE2E2',
   },
   strength_medium: {
-    backgroundColor: "#FEF3C7",
+    backgroundColor: '#FEF3C7',
   },
   strength_strong: {
-    backgroundColor: "#D1FAE5",
+    backgroundColor: '#D1FAE5',
   },
   strengthText: {
     fontSize: 12,
-    color: "#374151",
+    color: '#374151',
+    fontWeight: '500',
   },
   strengthValue: {
-    fontWeight: "bold",
-    textTransform: "uppercase",
+    fontWeight: '700',
+    textTransform: 'uppercase',
   },
   passwordButtons: {
-    flexDirection: "row",
+    flexDirection: 'row',
     gap: 12,
     marginTop: 8,
   },
@@ -785,78 +889,69 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 14,
     borderRadius: 8,
-    alignItems: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+    gap: 8,
   },
   updateBtn: {
-    backgroundColor: "#8B5CF6",
+    backgroundColor: '#8B5CF6',
   },
   saveBtn: {
-    backgroundColor: "#10B981",
+    backgroundColor: '#8B5CF6',
   },
   cancelBtn: {
-    backgroundColor: "#fff",
+    backgroundColor: '#fff',
     borderWidth: 1,
-    borderColor: "#D1D5DB",
+    borderColor: '#E5E7EB',
   },
   buttonText: {
-    color: "#fff",
+    color: '#fff',
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: '600',
   },
   cancelBtnText: {
-    color: "#374151",
+    color: '#6B7280',
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: '600',
   },
   resetPasswordBtn: {
-    backgroundColor: "#EF4444",
+    backgroundColor: '#8B5CF6',
     padding: 14,
     borderRadius: 8,
-    alignItems: "center",
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 8,
   },
   resetPasswordText: {
-    color: "#fff",
+    color: '#fff',
     fontSize: 16,
-    fontWeight: "600",
-  },
-  logoutContainer: {
-    margin: 16,
-    marginBottom: 32,
-  },
-  logoutBtn: {
-    backgroundColor: "#EF4444",
-    padding: 16,
-    borderRadius: 8,
-    alignItems: "center",
-  },
-  logoutText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: '600',
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    justifyContent: "flex-end",
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
   },
   modalContent: {
-    backgroundColor: "#fff",
+    backgroundColor: '#fff',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    maxHeight: "90%",
+    maxHeight: '90%',
   },
   modalHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: "#E5E7EB",
+    borderBottomColor: '#E5E7EB',
   },
   modalTitle: {
     fontSize: 20,
-    fontWeight: "bold",
-    color: "#111827",
+    fontWeight: '700',
+    color: '#111827',
   },
   modalBody: {
     padding: 20,
@@ -866,75 +961,74 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 16,
-    fontWeight: "bold",
-    color: "#111827",
-    marginBottom: 12,
-  },
-  avatarPreviewContainer: {
-    alignItems: "center",
+    fontWeight: '600',
+    color: '#111827',
     marginBottom: 16,
   },
+  avatarPreviewContainer: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
   avatarPreview: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    justifyContent: "center",
-    alignItems: "center",
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   avatarPreviewText: {
-    fontSize: 32,
-    color: "#fff",
-    fontWeight: "bold",
+    fontSize: 40,
+    color: '#fff',
+    fontWeight: '700',
   },
   colorPicker: {
-    flexDirection: "row",
-    flexWrap: "wrap",
+    flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: 12,
   },
   colorOption: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    borderWidth: 2,
-    borderColor: "transparent",
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    borderWidth: 3,
+    borderColor: 'transparent',
   },
   colorOptionSelected: {
-    borderColor: "#111827",
-    borderWidth: 3,
+    borderColor: '#111827',
   },
   uploadBtn: {
-    backgroundColor: "#8B5CF6",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 12,
+    backgroundColor: '#8B5CF6',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 14,
     borderRadius: 8,
     gap: 8,
   },
   uploadBtnText: {
-    color: "#fff",
+    color: '#fff',
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: '600',
   },
   removeImageBtn: {
-    backgroundColor: "#FEE2E2",
-    padding: 10,
+    backgroundColor: '#FEE2E2',
+    padding: 12,
     borderRadius: 8,
-    marginTop: 8,
-    alignItems: "center",
+    marginTop: 12,
+    alignItems: 'center',
   },
   removeImageText: {
-    color: "#DC2626",
+    color: '#DC2626',
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: '600',
   },
   modalFooter: {
-    flexDirection: "row",
+    flexDirection: 'row',
     padding: 20,
     gap: 12,
     borderTopWidth: 1,
-    borderTopColor: "#E5E7EB",
+    borderTopColor: '#E5E7EB',
   },
 });
 
-export default SettingsPage;
+export default SettingsPage

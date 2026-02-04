@@ -6,6 +6,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  Platform,
   SafeAreaView,
 } from 'react-native';
 import AdminDashboard from './dashboard';
@@ -17,7 +18,7 @@ import AdminSettings from './settingsA'
 
 const MainApp = ({ userData, onLogout }) => {
   const [activePage, setActivePage] = useState('dashboard');
-
+  const [user, setUser] = useState(userData);
   const renderPage = () => {
     switch (activePage) {
       case 'dashboard':
@@ -31,23 +32,38 @@ const MainApp = ({ userData, onLogout }) => {
       case 'users':
         return <UsersPage userData={userData} />;
       case 'settings':
-        return <AdminSettings userData={userData} />;
+        return <AdminSettings currentUser={user} onLogout={onLogout} onProfileUpdate={handleProfileUpdate}/>
       default:
         return <AdminDashboard userData={userData} />;
     }
   };
-    console.log('Fichier ouvert : MainApp.jsx');
-
+const handleProfileUpdate = (updatedUser) => {
+  setUser(updatedUser); // met à jour le header
+};
   return (
     <SafeAreaView style={styles.container}>
       {/* Header avec info utilisateur */}
       <View style={styles.appHeader}>
         <View style={styles.userInfoHeader}>
-          <View style={styles.userAvatarHeader}>
-            <Text style={styles.userAvatarText}>
-              {userData?.name ? userData.name.charAt(0).toUpperCase() : 'A'}
-            </Text>
-          </View>
+        <View style={styles.userAvatarHeader}>
+  {user?.avatarImage ? (
+    <Image
+      source={{ uri: user.avatarImage }}
+      style={styles.userAvatarImage}
+    />
+  ) : (
+    <View
+      style={[styles.userAvatarHeader, { backgroundColor: user.avatarColor || "#8B5CF6" }]}
+    >
+      <Text style={styles.userAvatarText}>
+        {user?.firstName && user?.lastName
+          ? `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase()
+          : "A"}
+      </Text>
+    </View>
+  )}
+</View>
+
           <View>
             <Text style={styles.userNameHeader}>
               {userData?.firstName && userData?.lastName ? `${userData.firstName} ${userData.lastName}`: 'Admin'}
@@ -241,7 +257,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F8F7FC',
-    paddingVertical: 18
   },
 
   // === APP HEADER ===
@@ -250,7 +265,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 24,
-    paddingVertical: 16,
+    paddingBottom: 16,
+    paddingTop: 30,
     backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
     borderBottomColor: '#E5E7EB',
@@ -265,6 +281,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 12,
   },
+  userAvatarImage: {
+  width: 48,
+  height: 48,
+  borderRadius: 24,
+},
+
   userAvatarHeader: {
     width: 48,
     height: 48,
@@ -314,12 +336,12 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowRadius: 12,
     elevation: 8,
-    padding: undefined,
+    
   },
   bottomNav: {
     flexDirection: 'row',
-    paddingVertical: 12,
-    paddingHorizontal: 12,
+    paddingBottom: Platform.OS === 'android'? 38:8 ,
+    
   },
   navItem: {
     alignItems: 'center',

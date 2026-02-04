@@ -5,16 +5,16 @@ import { LinearGradient } from 'expo-linear-gradient';
 const ReportsPage = () => {
   const stats = [
     {
-      title: 'Économies Réalisées',
+      title: 'Savings Achieved',
       value: '€1,247',
       change: '↑ 18%',
-      changeText: 'ce trimestre',
+      changeText: 'this quarter',
       icon: '💰',
       iconBg: 'rgba(16, 185, 129, 0.1)',
       iconColor: '#10B981',
     },
     {
-      title: 'Temps de Fonctionnement',
+      title: 'Operating Time',
       value: '99.8%',
       change: 'Uptime',
       changeText: '',
@@ -23,9 +23,9 @@ const ReportsPage = () => {
       iconColor: '#8B5CF6',
     },
     {
-      title: 'Alertes Résolues',
+      title: 'Alerts Resolved',
       value: '142',
-      change: 'ce mois',
+      change: 'this month',
       changeText: '',
       icon: '✓',
       iconBg: 'rgba(245, 158, 11, 0.1)',
@@ -37,25 +37,26 @@ const ReportsPage = () => {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.title}>Historique & Rapports</Text>
-        <Text style={styles.subtitle}>Analysez les données de votre système</Text>
+        <Text style={styles.title}>History & Reports</Text>
+        <Text style={styles.subtitle}>Analyze your system data</Text>
       </View>
 
       {/* Chart Card */}
+      
       <View style={styles.chartCard}>
         <View style={styles.chartHeader}>
-          <Text style={styles.chartTitle}>Consommation Énergétique Mensuelle</Text>
+          <Text style={styles.chartTitle}>Monthly Energy Consumption</Text>
           <View style={styles.chartFilters}>
-            <Text style={styles.filterBtn}>3 Mois</Text>
+            <Text style={styles.filterBtn}>3 Months</Text>
             <LinearGradient
               colors={['#8B5CF6', '#EC4899']}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
               style={styles.filterBtnActive}
             >
-              <Text style={styles.filterBtnActiveText}>6 Mois</Text>
+              <Text style={styles.filterBtnActiveText}>6 Months</Text>
             </LinearGradient>
-            <Text style={styles.filterBtn}>1 An</Text>
+            <Text style={styles.filterBtn}>1 Year</Text>
           </View>
         </View>
         <View style={styles.chartPlaceholder}>
@@ -110,6 +111,8 @@ const styles = StyleSheet.create({
   },
   header: {
     marginBottom: 32,
+    paddingHorizontal: 24,
+    paddingTop: 24,
   },
   title: {
     fontSize: 32,
@@ -121,6 +124,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#6B7280',
   },
+
   chartCard: {
     backgroundColor: '#FFFFFF',
     padding: 28,
@@ -131,6 +135,7 @@ const styles = StyleSheet.create({
     shadowRadius: 20,
     elevation: 4,
     marginBottom: 24,
+  
   },
   chartHeader: {
     flexDirection: 'row',
@@ -171,6 +176,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(139, 92, 246, 0.05)',
     borderRadius: 12,
     padding: 20,
+    paddingHorizontal: 16,
+    
   },
   chartBars: {
     flex: 1,
@@ -185,9 +192,8 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 8,
   },
   statsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 24,
+  paddingHorizontal: 24,
+  marginBottom: 32,
   },
   statCard: {
     flex: 1,
@@ -202,6 +208,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowRadius: 20,
     elevation: 4,
+    marginBottom: 16,
   },
   statHeader: {
     flexDirection: 'row',

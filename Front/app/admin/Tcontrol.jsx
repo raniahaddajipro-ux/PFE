@@ -29,8 +29,8 @@ const ControlPage = () => {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.title}>Contrôle IoT</Text>
-        <Text style={styles.subtitle}>Gérez vos modules intelligents</Text>
+        <Text style={styles.title}>IoT Control</Text>
+        <Text style={styles.subtitle}>Manage your smart modules</Text>
       </View>
 
       {/* Control Grid */}
@@ -43,7 +43,7 @@ const ControlPage = () => {
                 <Text style={[styles.iconText, { color: '#F59E0B' }]}>💡</Text>
               </View>
               <View>
-                <Text style={styles.deviceName}>Éclairage</Text>
+                <Text style={styles.deviceName}>Lighting</Text>
                 <View style={styles.statusLed}>
                   <View
                     style={[
@@ -72,7 +72,7 @@ const ControlPage = () => {
           {devices.light.enabled && (
             <View style={styles.sliderControl}>
               <View style={styles.sliderLabel}>
-                <Text style={styles.labelText}>Intensité</Text>
+                <Text style={styles.labelText}>Intensity</Text>
                 <Text style={styles.sliderValue}>{Math.round(devices.light.value)}%</Text>
               </View>
               <Slider
@@ -97,7 +97,7 @@ const ControlPage = () => {
                 <Text style={[styles.iconText, { color: '#8B5CF6' }]}>🪟</Text>
               </View>
               <View>
-                <Text style={styles.deviceName}>Stores</Text>
+                <Text style={styles.deviceName}>Blinds</Text>
                 <View style={styles.statusLed}>
                   <View
                     style={[
@@ -126,7 +126,7 @@ const ControlPage = () => {
           {devices.blinds.enabled && (
             <View style={styles.sliderControl}>
               <View style={styles.sliderLabel}>
-                <Text style={styles.labelText}>Ouverture</Text>
+                <Text style={styles.labelText}>Opening</Text>
                 <Text style={styles.sliderValue}>{Math.round(devices.blinds.value)}%</Text>
               </View>
               <Slider
@@ -151,7 +151,7 @@ const ControlPage = () => {
                 <Text style={[styles.iconText, { color: '#10B981' }]}>❄️</Text>
               </View>
               <View>
-                <Text style={styles.deviceName}>Climatisation</Text>
+                <Text style={styles.deviceName}>Air Conditioning</Text>
                 <View style={styles.statusLed}>
                   <View
                     style={[
@@ -184,7 +184,7 @@ const ControlPage = () => {
                 <Text style={styles.tempUnit}>°C</Text>
               </View>
               <View style={styles.sliderLabel}>
-                <Text style={styles.labelText}>Température</Text>
+                <Text style={styles.labelText}>Temperature</Text>
               </View>
               <Slider
                 style={styles.slider}
@@ -208,7 +208,7 @@ const ControlPage = () => {
                 <Text style={[styles.iconText, { color: '#EC4899' }]}>💼</Text>
               </View>
               <View>
-                <Text style={styles.deviceName}>Poste A-12</Text>
+                <Text style={styles.deviceName}>Station A-12</Text>
                 <View style={styles.statusLed}>
                   <View
                     style={[
@@ -237,11 +237,11 @@ const ControlPage = () => {
           {devices.workstation.enabled && (
             <View style={styles.energyStats}>
               <View style={styles.energyStat}>
-                <Text style={styles.energyLabel}>Énergie</Text>
+                <Text style={styles.energyLabel}>Energy</Text>
                 <Text style={styles.energyValue}>145W</Text>
               </View>
               <View style={styles.energyStat}>
-                <Text style={styles.energyLabel}>Durée</Text>
+                <Text style={styles.energyLabel}>Duration</Text>
                 <Text style={styles.energyValue}>4h 23m</Text>
               </View>
               <View style={styles.energyStat}>
@@ -259,9 +259,12 @@ const ControlPage = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    
   },
   header: {
     marginBottom: 32,
+    paddingHorizontal: 24,
+    paddingTop: 24,
   },
   title: {
     fontSize: 32,
@@ -274,13 +277,12 @@ const styles = StyleSheet.create({
     color: '#6B7280',
   },
   controlGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 24,
+    paddingHorizontal: 24,
+    marginBottom: 32,
   },
   controlCard: {
     flex: 1,
-    minWidth: 300,
+    minWidth: 190,
     backgroundColor: '#FFFFFF',
     padding: 24,
     borderRadius: 16,
@@ -289,11 +291,12 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowRadius: 20,
     elevation: 4,
+    marginBottom: 24,
   },
   controlHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     marginBottom: 20,
   },
   controlTitle: {
@@ -341,7 +344,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
   sliderControl: {
-    marginTop: 16,
+    marginTop:20,
   },
   sliderLabel: {
     flexDirection: 'row',

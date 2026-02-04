@@ -6,6 +6,7 @@ const storageService = {
     try {
       await AsyncStorage.setItem('userToken', userData.token);
       await AsyncStorage.setItem('userData', JSON.stringify(userData));
+      console.log("✅ TOKEN SAVED:", userData.token);
       return true;
     } catch (error) {
       console.error('Erreur lors de la sauvegarde des données:', error);

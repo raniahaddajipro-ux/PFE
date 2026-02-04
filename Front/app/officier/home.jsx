@@ -8,7 +8,7 @@ import SettingsPage from './settings';
 
 const MainApp = ({ userData, onLogout }) => {
   const [activePage, setActivePage] = useState('dashboard');
-
+  const [user, setUser] = useState(userData);
   const renderPage = () => {
     switch (activePage) {
       case 'dashboard':
@@ -18,25 +18,35 @@ const MainApp = ({ userData, onLogout }) => {
       case 'notifications':
         return <NotificationsPage userData={userData} />;
       case 'settings':
-        return <SettingsPage userData={userData} />;
+        return <SettingsPage currentUser={userData} onLogout={onLogout} onProfileUpdate={handleProfileUpdate} />;
       default:
         return <DashboardPage userData={userData} />;
     }
   };
-
+const handleProfileUpdate = (updatedUser) => {
+  setUser(updatedUser); // met à jour le header
+};
   return (
     <View style={styles.container}>
       {/* Header avec info utilisateur */}
       <View style={styles.appHeader}>
         <View style={styles.userInfoHeader}>
-          <View style={styles.userAvatarHeader}>
-            <Text style={styles.userAvatarText}>{userData.avatar}</Text>
-          </View>
+          <View
+                style={[styles.userAvatarHeader, { backgroundColor: user.avatarColor || "#8B5CF6" }]}
+              >
+                <Text style={styles.userAvatarText}>
+                  {user?.firstName && user?.lastName
+                    ? `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase()
+                    : "A"}
+                </Text>
+              </View>
           <View>
-            <Text style={styles.userNameHeader}>{userData.name}</Text>
-            <Text style={styles.userRoleHeader}>
-              {userData.role === 'admin' ? 'Administrateur' : 'Officier'}
+            <Text style={styles.userNameHeader}>
+              {userData?.firstName && userData?.lastName ? `${userData.firstName} ${userData.lastName}`: 'Admin'}
             </Text>
+             <Text style={styles.userRoleHeader}>
+                {userData?.role?.toLowerCase() === 'admin' ? 'Admin' : 'Staff'}
+              </Text>
           </View>
         </View>
         <TouchableOpacity style={styles.logoutBtn} onPress={onLogout}>
@@ -162,8 +172,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 24,
-    paddingBottom: 16,
-    paddingTop: 30,
+    paddingBottom: 15,
+    paddingTop:30,
     backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
     borderBottomColor: '#E5E7EB',

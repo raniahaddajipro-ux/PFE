@@ -1,4 +1,4 @@
-// src/pages/admin/AdminSettings.jsx - Version React Native Mobile
+// src/pages/admin/AdminSettings.jsx - Version React Native Mobile avec AsyncStorage
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -16,7 +16,7 @@ import {
 import { Feather } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import * as ImagePicker from "expo-image-picker";
-import { updateProfile, updatePassword } from "../../Service/userservice";
+import { updateProfile, updatePassword, saveUser, getUser } from "../../Service/userservice";
 
 const AdminSettings = ({ currentUser, onLogout, onProfileUpdate }) => {
   const [showEditModal, setShowEditModal] = useState(false);
@@ -51,10 +51,13 @@ const AdminSettings = ({ currentUser, onLogout, onProfileUpdate }) => {
 
   // ✅ Sync local state when currentUser prop changes
   useEffect(() => {
-    console.log("🔵 AdminSettings: currentUser changed, syncing local state");
     if (currentUser) {
-      setEmail(currentUser.mail || "");
-      setPhone(currentUser.phone || "");
+      // ✅ Synchroniser email et phone avec currentUser
+      const userEmail = currentUser.mail || currentUser.email || "";
+      const userPhone = currentUser.phone || "";
+
+      setEmail(userEmail);
+      setPhone(userPhone);
       setAvatarColor(currentUser.avatarColor || "#8B5CF6");
 
       // ✅ Add cache-busting timestamp to force image reload
@@ -62,8 +65,6 @@ const AdminSettings = ({ currentUser, onLogout, onProfileUpdate }) => {
         ? `${currentUser.avatarImage}?t=${Date.now()}`
         : null;
       setAvatarImage(imageUrl);
-
-      console.log("🔵 Synced avatar image:", imageUrl);
     }
   }, [currentUser]);
 
@@ -197,6 +198,10 @@ const AdminSettings = ({ currentUser, onLogout, onProfileUpdate }) => {
 
       console.log("🟢 Updated user data with token:", updatedUserData);
 
+      // ✅ Save updated user to AsyncStorage
+      await saveUser(updatedUserData);
+      console.log("✅ User saved to AsyncStorage");
+
       // ✅ Update parent component
       if (onProfileUpdate) {
         console.log("🟢 Calling onProfileUpdate...");
@@ -223,6 +228,8 @@ const AdminSettings = ({ currentUser, onLogout, onProfileUpdate }) => {
 
   // Reset password with API call
   const handleResetPassword = async () => {
+    console.log("🟢 handleResetPassword called");
+    
     setError("");
     setSuccess("");
 
@@ -249,7 +256,10 @@ const AdminSettings = ({ currentUser, onLogout, onProfileUpdate }) => {
     setLoading(true);
 
     try {
+      console.log("🟢 Calling updatePassword API...");
       const response = await updatePassword(currentPassword, password);
+
+      console.log("✅ Password update response:", response);
 
       showSuccess(response.message || "Password updated successfully");
       setCurrentPassword("");
@@ -258,6 +268,7 @@ const AdminSettings = ({ currentUser, onLogout, onProfileUpdate }) => {
       setPasswordStrength("");
       setShowResetPassword(false);
     } catch (err) {
+      console.error("❌ Password update error:", err);
       if (err.response) {
         setError(err.response.data.message || "Failed to update password");
       } else {
@@ -280,7 +291,7 @@ const AdminSettings = ({ currentUser, onLogout, onProfileUpdate }) => {
     // Otherwise, ensure proper URL format with cache-busting
     const baseUrl = avatarImage.startsWith("http")
       ? avatarImage
-      : `http://localhost:3000${avatarImage}`;
+      : `http://172.28.40.165:3000${avatarImage}`;
 
     return `${baseUrl.split("?")[0]}?t=${Date.now()}`;
   };
@@ -517,19 +528,7 @@ const AdminSettings = ({ currentUser, onLogout, onProfileUpdate }) => {
           )}
         </View>
 
-        {/* Logout Card */}
-        <View style={styles.card}>
-          <LinearGradient
-            colors={['#8B5CF6', '#EC4899']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 0, y: 1 }}
-            style={styles.cardBorder}
-          />
-          <TouchableOpacity style={styles.logoutBtn} onPress={onLogout}>
-            <Feather name="log-out" size={18} color="#fff" />
-            <Text style={styles.logoutText}>Logout</Text>
-          </TouchableOpacity>
-        </View>
+      
       </ScrollView>
 
       {/* Edit Profile Modal */}
@@ -929,20 +928,6 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
-  },
-  logoutBtn: {
-    backgroundColor: '#EF4444',
-    padding: 16,
-    borderRadius: 8,
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 8,
-  },
-  logoutText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '700',
   },
   modalOverlay: {
     flex: 1,

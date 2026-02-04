@@ -14,6 +14,7 @@ import {
   Alert,
   ActivityIndicator
 } from 'react-native';
+import { Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import authService from '../Service/authService';
 import storageService from '../Service/storageService';
@@ -27,6 +28,7 @@ const Login = ({ onLogin }) => {
   const float2 = useRef(new Animated.Value(40)).current;
   const slideUp = useRef(new Animated.Value(40)).current;
   const scrollRef = useRef(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async () => {
     if (!usermail.trim() || !password.trim()) {
@@ -97,7 +99,7 @@ const Login = ({ onLogin }) => {
 
       <KeyboardAvoidingView
         style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        behavior={Platform.OS === 'android' ? 'padding' : undefined}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0}
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} style={{ flex: 1 }}>
@@ -170,19 +172,49 @@ const Login = ({ onLogin }) => {
                   editable={!loading}
                 />
 
-                <Text style={styles.label}>Password</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="••••••••••••"
-                  placeholderTextColor="#6B7280"
-                  secureTextEntry
-                  value={password}
-                  onChangeText={setPassword}
-                   onFocus={() => {
-    scrollRef.current?.scrollTo({ y: 0, animated: true });
+  
+<View style={styles.passwordContainer}>
+  <TextInput
+    style={styles.passwordInput}
+    placeholder="••••••••••••"
+    placeholderTextColor="#6B7280"
+    secureTextEntry={!showPassword}
+    value={password}
+    onChangeText={setPassword}
+    editable={!loading}
+  />
+
+  <TouchableOpacity
+    onPress={() => setShowPassword(!showPassword)}
+    style={styles.eyeButton}
+  >
+    <Feather
+      name={showPassword ? 'eye' : 'eye-off'}
+      size={20}
+      color="#6B7280"
+    />
+  </TouchableOpacity>
+</View>
+<TouchableOpacity
+  activeOpacity={0.7}
+  onPress={async () => {
+    if (!usermail.trim()) {
+      Alert.alert('Error', 'Please enter your email first');
+      return;
+    }
+    
+    const result = await authService.forgotPassword(usermail);
+    Alert.alert(
+      'Password Reset',
+      result.message || 'If this email exists, a reset link has been sent.'
+    );
   }}
-                  editable={!loading}
-                />
+  style={styles.forgotPasswordContainer}
+>
+  <Text style={styles.forgotPasswordText}>Forgot password?</Text>
+</TouchableOpacity>
+
+
 
                 <TouchableOpacity 
                   activeOpacity={0.9} 
@@ -316,6 +348,42 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#111827',
   },
+  passwordContainer: {
+  width: '100%',
+  position: 'relative',
+  marginBottom: 20,
+},
+
+passwordInput: {
+  width: '100%',
+  borderWidth: 1,
+  borderColor: '#E5E7EB',
+  borderRadius: 16,
+  padding: 14,
+  paddingRight: 20, // espace pour le bouton
+  fontSize: 14,
+  color: '#111827',
+},
+
+eyeButton: {
+  position: 'absolute',
+  right: 20,
+  top: '50%',
+  transform: [{ translateY: -10 }],
+  padding: 4,
+},
+forgotPasswordContainer: {
+  alignSelf: 'flex-end',
+  marginBottom: 20,
+},
+
+forgotPasswordText: {
+  fontSize: 13,
+  color: '#8B5CF6',
+  fontWeight: '500',
+},
+
+
   button: {
     width: '100%',
     paddingVertical: 16,

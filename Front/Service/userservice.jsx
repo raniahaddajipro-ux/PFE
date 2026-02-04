@@ -1,74 +1,99 @@
 // src/services/api/userService.js
 import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage"
 
-const API_URL = "http://localhost:3000/api/user"; // ✅ Match your backend port
+const API_URL = "http://172.28.40.165:5000/api/user"; 
 
 // ✅ Get token from localStorage
-const getAuthToken = () => {
-  const user = JSON.parse(localStorage.getItem("user") || "{}");
-  return user?.token || "";
+const getAuthToken = async () => {
+  try {
+    const userJson = await AsyncStorage.getItem("userData");
+    if (userJson) {
+      const user = JSON.parse(userJson);
+      return user?.token || "";
+    }
+    return "";
+  } catch (error) {
+    return "";
+  }
 };
 
-export const updateProfile = async (formData) => {
+export const saveUser = async (user) => {
   try {
-    console.log("🔵 Sending profile update..."); // Debug log
-    
-    const token = getAuthToken();
-    console.log("🔵 Token:", token ? "Present" : "Missing"); // Debug log
-    
-    const response = await axios.put(`${API_URL}/update-profile`, formData, {
-      headers: {
-        "Authorization": `Bearer ${token}`,
-        "Content-Type": "multipart/form-data"
-      }
-    });
-    
-    console.log("✅ Profile update response:", response.data); // Debug log
-    return response.data;
-    
+    await AsyncStorage.setItem("userData", JSON.stringify(user));
   } catch (error) {
-    console.error("❌ Profile update error:", error.response?.data || error.message);
+    console.error("Error saving user:", error);
     throw error;
   }
 };
 
+// ✅ Get user from AsyncStorage
+export const getUser = async () => {
+  try {
+    const userJson = await AsyncStorage.getItem("userData");
+    return userJson ? JSON.parse(userJson) : null;
+  } catch (error) {
+    console.error("Error getting user:", error);
+    return null;
+  }
+};
+
+export const updateProfile = async (formData) => {
+  try {
+    const token = await getAuthToken();
+
+    const response = await axios.put(
+      `${API_URL}/update-profile`,
+      formData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+
 export const updatePassword = async (currentPassword, newPassword) => {
   try {
-    const token = getAuthToken();
-    
+    const token = await getAuthToken(); 
+
     const response = await axios.put(
       `${API_URL}/update-password`,
       { currentPassword, newPassword },
       {
         headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json"
-        }
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       }
     );
-    
+
     return response.data;
-    
   } catch (error) {
-    console.error("❌ Password update error:", error.response?.data || error.message);
     throw error;
   }
 };
 
+
 export const getUserProfile = async () => {
   try {
-    const token = getAuthToken();
-    
+    const token = await getAuthToken();
+
     const response = await axios.get(`${API_URL}/profile`, {
       headers: {
-        "Authorization": `Bearer ${token}`
-      }
+        Authorization: `Bearer ${token}`,
+      },
     });
-    
+
     return response.data;
-    
   } catch (error) {
-    console.error("❌ Get profile error:", error.response?.data || error.message);
     throw error;
   }
 };

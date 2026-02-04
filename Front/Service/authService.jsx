@@ -18,6 +18,21 @@ const authService = {
       };
     }
   },
+  // authService.js
+async forgotPassword(mail) {
+  try {
+    const response = await fetch(`${API_URL}/auth/forgot-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mail })
+    });
+
+    const data = await response.json();
+    return { success: true, message: data.message };
+  } catch (error) {
+    return { success: false, message: 'Network error' };
+  }
+}
 };
 
 export default authService;

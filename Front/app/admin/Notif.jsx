@@ -6,37 +6,37 @@ const NotificationsPage = () => {
     {
       type: 'critical',
       icon: '🚨',
-      title: 'Température Critique - Salle B',
-      message: 'La température a dépassé le seuil de 28°C. Intervention requise.',
-      time: 'Il y a 5 minutes',
+      title: 'Critical Temperature - Room B',
+      message: 'The temperature has exceeded the threshold of 28°C. Intervention required.',
+      time: '5 minutes ago',
     },
     {
       type: 'warning',
       icon: '⚠️',
-      title: 'Consommation Élevée Détectée',
-      message: 'Le poste A-15 consomme 15% au-dessus de la moyenne normale.',
-      time: 'Il y a 1 heure',
+      title: 'High Fuel Consumption Detected',
+      message: 'Station A-15 consumes 15% above the normal average.',
+      time: '1 hour ago',
     },
     {
       type: 'info',
       icon: 'ℹ️',
-      title: 'Maintenance Programmée',
-      message: 'Maintenance du système HVAC prévue demain à 14h00.',
-      time: 'Il y a 3 heures',
+      title: 'Scheduled Maintenance',
+      message: 'HVAC system maintenance scheduled for tomorrow at 2:00 PM.',
+      time: '3 hours ago',
     },
     {
       type: 'info',
       icon: '✅',
-      title: 'Mise à Jour Système Complétée',
-      message: 'Tous les modules IoT ont été mis à jour avec succès vers la version 2.4.1.',
-      time: 'Hier à 22:30',
+      title: 'System Update Completed',
+      message: 'All IoT modules have been successfully updated to version 2.4.1.',
+      time: 'Yesterday at 10:30 PM',
     },
     {
       type: 'warning',
       icon: '🔋',
-      title: 'Batterie Faible - Capteur #47',
-      message: 'Le capteur de température du bureau C-08 nécessite un remplacement de batterie.',
-      time: 'Hier à 16:45',
+      title: 'Low Battery - Sensor #47',
+      message: 'The C-08 office temperature sensor requires a battery replacement.',
+      time: 'Yesterday at 4:45 PM',
     },
   ];
 
@@ -73,8 +73,8 @@ const NotificationsPage = () => {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.title}>Notifications & Alertes</Text>
-        <Text style={styles.subtitle}>Restez informé en temps réel</Text>
+        <Text style={styles.title}>Notifications & Alerts</Text>
+        <Text style={styles.subtitle}>Stay informed in real time</Text>
       </View>
 
       {/* Notifications List */}
@@ -118,6 +118,8 @@ const styles = StyleSheet.create({
   },
   header: {
     marginBottom: 32,
+    paddingHorizontal: 24,
+    paddingTop: 24,
   },
   title: {
     fontSize: 32,
@@ -130,7 +132,8 @@ const styles = StyleSheet.create({
     color: '#6B7280',
   },
   notificationsList: {
-    gap: 16,
+    paddingHorizontal: 24,
+    marginBottom: 32,
   },
   notificationCard: {
     backgroundColor: '#FFFFFF',
@@ -145,6 +148,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowRadius: 20,
     elevation: 4,
+    marginBottom: 16,
   },
   notificationIcon: {
     width: 48,

@@ -13,7 +13,7 @@ const ControlPage = ({ userData }) => {
   const [devices, setDevices] = useState([
     {
       id: 1,
-      name: 'Éclairage',
+      name: 'Lighting',
       icon: '💡',
       status: true,
       value: 75,
@@ -22,7 +22,7 @@ const ControlPage = ({ userData }) => {
     },
     {
       id: 2,
-      name: 'Stores',
+      name: 'Blinds',
       icon: '🪟',
       status: true,
       value: 60,
@@ -31,7 +31,7 @@ const ControlPage = ({ userData }) => {
     },
     {
       id: 3,
-      name: 'Climatisation',
+      name: 'Air Conditioning',
       icon: '❄️',
       status: true,
       value: 22,
@@ -40,7 +40,7 @@ const ControlPage = ({ userData }) => {
     },
     {
       id: 4,
-      name: 'Poste A-12',
+      name: 'Station A-12',
       icon: '💼',
       status: true,
       value: null,
@@ -69,8 +69,8 @@ const ControlPage = ({ userData }) => {
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       <View style={styles.pageHeader}>
-        <Text style={styles.pageTitle}>Contrôle IoT</Text>
-        <Text style={styles.pageSubtitle}>Gérez vos modules intelligents</Text>
+        <Text style={styles.pageTitle}>IoT Control</Text>
+        <Text style={styles.pageSubtitle}>Manage your smart modules</Text>
       </View>
 
       <View style={styles.controlGrid}>
@@ -117,7 +117,7 @@ const ControlPage = ({ userData }) => {
             {device.type === 'slider' && (
               <View style={styles.sliderControl}>
                 <View style={styles.sliderLabel}>
-                  <Text style={styles.sliderLabelText}>Intensité</Text>
+                  <Text style={styles.sliderLabelText}>Intensity</Text>
                   <Text style={styles.sliderValue}>{device.value}%</Text>
                 </View>
               </View>
@@ -133,11 +133,11 @@ const ControlPage = ({ userData }) => {
             {device.type === 'info' && device.info && (
               <View style={styles.energyStats}>
                 <View style={styles.energyStat}>
-                  <Text style={styles.energyStatLabel}>Énergie</Text>
+                  <Text style={styles.energyStatLabel}>Energy</Text>
                   <Text style={styles.energyStatValue}>{device.info.energy}</Text>
                 </View>
                 <View style={styles.energyStat}>
-                  <Text style={styles.energyStatLabel}>Durée</Text>
+                  <Text style={styles.energyStatLabel}>Duration</Text>
                   <Text style={styles.energyStatValue}>{device.info.duration}</Text>
                 </View>
                 <View style={styles.energyStat}>

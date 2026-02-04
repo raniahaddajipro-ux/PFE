@@ -9,31 +9,31 @@ const UsersPage = () => {
       email: 'ahmed.m@sems.tn',
       role: 'admin',
       status: 'active',
-      lastLogin: "Aujourd'hui, 09:23",
+      lastLogin: "Today, 09:23",
       avatar: 'AM',
     },
     {
       name: 'Sara Karoui',
       email: 'sara.k@sems.tn',
-      role: 'officer',
+      role: 'staff',
       status: 'active',
-      lastLogin: "Aujourd'hui, 08:45",
+      lastLogin: "Today, 08:45",
       avatar: 'SK',
     },
     {
       name: 'Mohamed Ben Ali',
       email: 'mohamed.b@sems.tn',
-      role: 'officer',
+      role: 'staff',
       status: 'active',
-      lastLogin: 'Hier, 17:30',
+      lastLogin: 'Yesterday, 5:30 PM',
       avatar: 'MB',
     },
     {
       name: 'Leila Trabelsi',
       email: 'leila.t@sems.tn',
-      role: 'officer',
+      role: 'staff',
       status: 'offline',
-      lastLogin: 'Il y a 2 jours',
+      lastLogin: '2 days ago',
       avatar: 'LT',
     },
   ];
@@ -42,14 +42,14 @@ const UsersPage = () => {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.title}>Gestion des Utilisateurs</Text>
-        <Text style={styles.subtitle}>Administrez les accès au système</Text>
+        <Text style={styles.title}>User Management</Text>
+        <Text style={styles.subtitle}>Manage system access</Text>
       </View>
 
       {/* Users Table */}
       <View style={styles.usersTable}>
         <View style={styles.tableHeader}>
-          <Text style={styles.tableTitle}>Liste des Utilisateurs</Text>
+          <Text style={styles.tableTitle}>List of Users</Text>
           <TouchableOpacity activeOpacity={0.8}>
             <LinearGradient
               colors={['#8B5CF6', '#EC4899']}
@@ -58,7 +58,7 @@ const UsersPage = () => {
               style={styles.btnAdd}
             >
               <Text style={styles.btnAddIcon}>+</Text>
-              <Text style={styles.btnAddText}>Nouvel Utilisateur</Text>
+              <Text style={styles.btnAddText}>New User</Text>
             </LinearGradient>
           </TouchableOpacity>
         </View>
@@ -69,19 +69,19 @@ const UsersPage = () => {
             {/* Table Header */}
             <View style={styles.tableRow}>
               <View style={[styles.tableCell, styles.tableCellHeader, { width: 250 }]}>
-                <Text style={styles.tableCellHeaderText}>Utilisateur</Text>
+                <Text style={styles.tableCellHeaderText}>User</Text>
               </View>
               <View style={[styles.tableCell, styles.tableCellHeader, { width: 200 }]}>
                 <Text style={styles.tableCellHeaderText}>Email</Text>
               </View>
               <View style={[styles.tableCell, styles.tableCellHeader, { width: 150 }]}>
-                <Text style={styles.tableCellHeaderText}>Rôle</Text>
+                <Text style={styles.tableCellHeaderText}>Role</Text>
               </View>
               <View style={[styles.tableCell, styles.tableCellHeader, { width: 120 }]}>
-                <Text style={styles.tableCellHeaderText}>Statut</Text>
+                <Text style={styles.tableCellHeaderText}>Status</Text>
               </View>
               <View style={[styles.tableCell, styles.tableCellHeader, { width: 180 }]}>
-                <Text style={styles.tableCellHeaderText}>Dernière Connexion</Text>
+                <Text style={styles.tableCellHeaderText}>Last Login</Text>
               </View>
               <View style={[styles.tableCell, styles.tableCellHeader, { width: 200 }]}>
                 <Text style={styles.tableCellHeaderText}>Actions</Text>
@@ -180,6 +180,8 @@ const styles = StyleSheet.create({
   },
   header: {
     marginBottom: 32,
+    paddingHorizontal: 24,
+    paddingTop: 24,
   },
   title: {
     fontSize: 32,
