@@ -100,78 +100,74 @@ const Login = ({ onLogin }) => {
   };
 
   return (
-    <div className="login-container">
-      <div className="login-circle-1"></div>
-      <div className="login-circle-2"></div>
+    <>
+      <div className="login-container">
+        {/* Floating Circle 1 */}
+        <div className="login-circle-1" />
 
-      <div className="login-box">
-        <div className="text-center mb-8">
-          <h1 className="logo-title" style={{ textAlign: "center" }}>SEMS</h1>
-          <p className="text-sm text-gray-600" style={{ textAlign: "center" }}>Smart Enterprise Management System</p>
-        </div>
+        {/* Floating Circle 2 */}
+        <div className="login-circle-2" />
 
-        <div className="role-selector mb-10">
-          <div
-            onClick={() => handleRoleSelect('admin')}
-            className={`role-card ${selectedRole === 'admin' ? 'role-card-active' : ''}`}
-          >
-            <div style={{ fontSize: '40px' }}>👨‍💼</div>
-            <h3 className="font-semibold text-base">Admin</h3>
+        {/* Login Box */}
+        <div className="login-box">
+          {/* Logo & Title */}
+          <div className="logo">
+            <h1>SEMS</h1>
+            <p>Smart Enterprise Management System</p>
           </div>
 
-          <div
-            onClick={() => handleRoleSelect('staff')}
-            className={`role-card ${selectedRole === 'staff' ? 'role-card-active' : ''}`}
-          >
-            <div style={{ fontSize: '40px' }}>👨‍💻</div>
-            <h3 className="font-semibold text-base">staff</h3>
-          </div>
-        </div>
+          {/* Role Selector */}
+          <div className="role-selector">
+            {/* Admin Role Card */}
+            <div
+              onClick={() => handleRoleSelect('admin')}
+              className={`role-card ${selectedRole === 'admin' ? 'active' : ''}`}
+            >
+              <div className="icon">👨‍💼</div>
+              <h3>Admin</h3>
+            </div>
 
-        <form onSubmit={handleSubmit} className="mt-6">
-          <div className="input-group">
-            <label htmlFor="Mail">Mail</label>
-            <input
-              type="text"
-              id="Mail"
-              value={Mail}
-              onChange={(e) => setMail(e.target.value)}
-              required
-              placeholder="Enter your Mail"
-            />
+            {/* Staff Role Card */}
+            <div
+              onClick={() => handleRoleSelect('staff')}
+              className={`role-card ${selectedRole === 'staff' ? 'active' : ''}`}
+            >
+              <div className="icon">👨‍💻</div>
+              <h3>Staff</h3>
+            </div>
           </div>
 
-          <div className="input-group">
-            <label htmlFor="password">Password</label>
-            <div style={{ position: 'relative' }}>
+          {/* Form */}
+          <form onSubmit={handleSubmit}>
+            {/* Mail Input */}
+            <div className="input-group">
+              <label htmlFor="Mail">Mail</label>
               <input
-                type={showPassword ? "text" : "password"}
-                id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                type="text"
+                id="Mail"
+                value={Mail}
+                onChange={(e) => setMail(e.target.value)}
                 required
-                placeholder="••••••••"
-                style={{ paddingRight: '40px' }}
+                placeholder="Enter your Mail"
               />
-              <button
+            </div>
+
+            {/* Password Input */}
+            <div className="input-group">
+              <label htmlFor="password">Password</label>
+              <div className="password-wrapper">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  id="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  placeholder="••••••••"
+                />
+                <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  style={{
-                    position: 'absolute',
-                    right: '12px',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    padding: '4px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    color: '#6B7280',
-                    transition: 'color 0.2s'
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.color = '#8B5CF6'}
-                  onMouseLeave={(e) => e.currentTarget.style.color = '#6B7280'}
+                  className="password-toggle"
                 >
                   {showPassword ? (
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -185,30 +181,330 @@ const Login = ({ onLogin }) => {
                     </svg>
                   )}
                 </button>
+              </div>
             </div>
-          </div>
 
-          <button type="submit" className="btn-primary">
-            Login
-          </button>
-        </form>
+            {/* Submit Button */}
+            <button type="submit" className="btn-primary">
+              Login
+            </button>
+          </form>
+        </div>
+
+        {/* Toast Notification */}
+        {toast && (
+          <div className={`toast toast-${toast.type}`}>
+            {toast.type === "error" && <span className="toast-icon error">❌</span>}
+            {toast.type === "success" && <span className="toast-icon success">✅</span>}
+            {toast.type === "warning" && <span className="toast-icon warning">⚠️</span>}
+            <span className="toast-message">{toast.message}</span>
+          </div>
+        )}
       </div>
 
-      {toast && (
-        <div
-          className={`toast flex items-center gap-3 ${
-            toast.type === "error" ? "toast-error" :
-            toast.type === "success" ? "toast-success" :
-            "toast-warning"
-          }`}
-        >
-          {toast.type === "error" && <span className="text-red-500 text-xl">❌</span>}
-          {toast.type === "success" && <span className="text-green-500 text-xl">✅</span>}
-          {toast.type === "warning" && <span className="text-yellow-500 text-xl">⚠️</span>}
-          <span className="font-semibold">{toast.message}</span>
-        </div>
-      )}
-    </div>
+      {/* All Styles */}
+      <style jsx>{`
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
+
+        /* Login Container */
+        .login-container {
+          min-height: 100vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 20px;
+          background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);
+          position: relative;
+          overflow: hidden;
+        }
+
+        /* Floating Circle 1 */
+        .login-circle-1 {
+          position: absolute;
+          width: 500px;
+          height: 500px;
+          background: rgba(255, 255, 255, 0.1);
+          border-radius: 50%;
+          top: -200px;
+          right: -200px;
+          animation: float 6s ease-in-out infinite;
+        }
+
+        /* Floating Circle 2 */
+        .login-circle-2 {
+          position: absolute;
+          width: 400px;
+          height: 400px;
+          background: rgba(255, 255, 255, 0.08);
+          border-radius: 50%;
+          bottom: -150px;
+          left: -150px;
+          animation: float 8s ease-in-out infinite reverse;
+        }
+
+        @keyframes float {
+          0%, 100% { 
+            transform: translateY(0px); 
+          }
+          50% { 
+            transform: translateY(20px); 
+          }
+        }
+
+        /* Login Box */
+        .login-box {
+          background: #FFFFFF;
+          padding: 48px;
+          border-radius: 20px;
+          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+          max-width: 440px;
+          width: 100%;
+          position: relative;
+          z-index: 1;
+          animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+          from {
+            opacity: 0;
+            transform: translateY(30px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        /* Logo */
+        .logo {
+          text-align: center;
+          margin-bottom: 32px;
+        }
+
+        .logo h1 {
+          font-family: 'Outfit', sans-serif;
+          font-size: 32px;
+          font-weight: 700;
+          background: linear-gradient(135deg, #8B5CF6, #EC4899);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          margin-bottom: 8px;
+        }
+
+        .logo p {
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          font-size: 14px;
+          color: #6B7280;
+        }
+
+        /* Role Selector */
+        .role-selector {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 16px;
+          margin-bottom: 32px;
+        }
+
+        .role-card {
+          background: #F8F7FC;
+          padding: 24px;
+          border-radius: 16px;
+          border: 2px solid transparent;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          text-align: center;
+        }
+
+        .role-card:hover {
+          border-color: #8B5CF6;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(139, 92, 246, 0.15);
+        }
+
+        .role-card.active {
+          background: linear-gradient(135deg, #8B5CF6, #EC4899);
+          color: white;
+          border-color: transparent;
+          transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba(139, 92, 246, 0.3);
+        }
+
+        .role-card .icon {
+          font-size: 32px;
+          margin-bottom: 8px;
+        }
+
+        .role-card h3 {
+          font-family: 'Outfit', sans-serif;
+          font-size: 16px;
+          font-weight: 600;
+          color: #111827;
+        }
+
+        .role-card.active h3 {
+          color: white;
+        }
+
+        /* Input Group */
+        .input-group {
+          margin-bottom: 20px;
+        }
+
+        .input-group label {
+          display: block;
+          margin-bottom: 8px;
+          font-size: 14px;
+          font-weight: 500;
+          color: #111827;
+          font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .input-group input {
+          width: 100%;
+          padding: 14px 16px;
+          border: 2px solid #E5E7EB;
+          border-radius: 12px;
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          font-size: 15px;
+          transition: all 0.3s ease;
+          background: #F8F7FC;
+        }
+
+        .input-group input::placeholder {
+          color: #9ca3af;
+        }
+
+        .input-group input:focus {
+          outline: none;
+          border-color: #8B5CF6;
+          background: white;
+        }
+
+        /* Password Wrapper */
+        .password-wrapper {
+          position: relative;
+        }
+
+        .password-wrapper input {
+          padding-right: 48px;
+        }
+
+        .password-toggle {
+          position: absolute;
+          right: 16px;
+          top: 50%;
+          transform: translateY(-50%);
+          background: transparent;
+          border: none;
+          cursor: pointer;
+          padding: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #6B7280;
+          transition: color 0.2s ease;
+        }
+
+        .password-toggle:hover {
+          color: #8B5CF6;
+        }
+
+        /* Primary Button */
+        .btn-primary {
+          width: 100%;
+          padding: 16px;
+          background: linear-gradient(135deg, #8B5CF6, #EC4899);
+          color: white;
+          border: none;
+          border-radius: 12px;
+          font-family: 'Outfit', sans-serif;
+          font-size: 16px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+        }
+
+        .btn-primary:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 25px rgba(139, 92, 246, 0.4);
+        }
+
+        .btn-primary:active {
+          transform: translateY(0);
+          box-shadow: 0 2px 10px rgba(139, 92, 246, 0.3);
+        }
+
+        /* Toast Notification */
+        .toast {
+          position: fixed;
+          bottom: 32px;
+          right: 32px;
+          padding: 16px 24px;
+          background: white;
+          border-radius: 12px;
+          box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          z-index: 1000;
+          animation: slideUp 0.3s ease-out;
+        }
+
+        .toast-error {
+          border-left: 4px solid #EF4444;
+        }
+
+        .toast-success {
+          border-left: 4px solid #10B981;
+        }
+
+        .toast-warning {
+          border-left: 4px solid #F59E0B;
+        }
+
+        .toast-icon {
+          font-size: 20px;
+        }
+
+        .toast-icon.error {
+          color: #EF4444;
+        }
+
+        .toast-icon.success {
+          color: #10B981;
+        }
+
+        .toast-icon.warning {
+          color: #F59E0B;
+        }
+
+        .toast-message {
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          font-weight: 600;
+          color: #111827;
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+          .login-box {
+            padding: 32px 24px;
+          }
+
+          .login-circle-1,
+          .login-circle-2 {
+            display: none;
+          }
+        }
+      `}</style>
+    </>
   );
 };
 
